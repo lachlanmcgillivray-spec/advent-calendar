@@ -172,7 +172,9 @@
   var ORDER = [7,18,2,23,11,15,4,20,13,1,9,22,16,6,24,3,12,19,10,5,21,14,8,17];
   var KEY = "advent-jokes-opened";
 
-  var preview = window.location.hash === "#preview";
+  var preview = window.location.hash.toLowerCase() === "#preview";
+  // Adding or removing #preview on an open page doesn't reload it, so reload here.
+  window.addEventListener("hashchange", function () { window.location.reload(); }, false);
   var now = new Date();
   var isDec = now.getMonth() === 11;
   var today = isDec ? now.getDate() : 0;

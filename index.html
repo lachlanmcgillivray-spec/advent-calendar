@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Joke Calendar">
+<title>Christmas Joke Advent Calendar</title>
+<link href="https://fonts.googleapis.com/css?family=Mountains+of+Christmas:700|Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  /* Written for older iPads too: no CSS variables, grid, gap, inset or aspect-ratio. */
+  * { -webkit-box-sizing: border-box; box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Fredoka One', 'Trebuchet MS', Arial, sans-serif;
+    color: #fff8ec;
+    background-color: #0f1f3d;
+    background-image: -webkit-radial-gradient(top, ellipse, #1b3563, #0f1f3d 70%);
+    background-image: radial-gradient(ellipse at top, #1b3563, #0f1f3d 70%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+  #snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 24px 14px 50px; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 {
+    font-family: 'Mountains of Christmas', Georgia, serif;
+    font-size: 44px; line-height: 1.05; margin: 0; color: #f5c542;
+    text-shadow: 0 3px 0 #8f1d25, 0 6px 16px rgba(0,0,0,.4);
+  }
+  @media (min-width: 600px) { h1 { font-size: 64px; } }
+  .sub { font-size: 18px; margin: 10px 0 0; }
+  .status {
+    display: inline-block; margin-top: 14px; padding: 8px 18px; border-radius: 30px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  }
+
+  .board {
+    background: #1f7a4d;
+    background-image: -webkit-linear-gradient(top left, #1f7a4d, #13573a);
+    background-image: linear-gradient(160deg, #1f7a4d, #13573a);
+    padding: 8px; border-radius: 22px; border: 6px solid #c8323c;
+    box-shadow: 0 0 0 4px #f5c542, 0 18px 40px rgba(0,0,0,.45);
+  }
+  .board:after { content: ""; display: block; clear: both; }
+  .cell { float: left; width: 25%; padding: 5px; }
+  @media (min-width: 640px) { .cell { width: 16.6666%; padding: 6px; } }
+
+  .door {
+    position: relative; display: block; width: 100%; height: 0; padding: 0 0 112% 0;
+    border: 0; margin: 0; cursor: pointer; border-radius: 12px; background: #0b3b25;
+    font-family: inherit; -webkit-appearance: none; -webkit-tap-highlight-color: transparent;
+    -webkit-perspective: 600px; perspective: 600px;
+  }
+  .inside, .front {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px;
+    display: -webkit-box; display: -webkit-flex; display: flex;
+    -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
+    -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+    -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  }
+  .inside { background: #fff8ec; font-size: 34px; }
+  .front {
+    color: #fff8ec; border: 2px dashed rgba(255,255,255,.35);
+    -webkit-transform-origin: left center; transform-origin: left center;
+    -webkit-transition: -webkit-transform .7s ease; transition: transform .7s ease;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .c0 .front { background: #b52f38; }
+  .c1 .front { background: #23774c; }
+  .c2 .front { background: #264f8f; }
+  .num { font-family: 'Mountains of Christmas', Georgia, serif; font-size: 36px; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.3); }
+  .tag { font-size: 11px; letter-spacing: 1px; margin-top: 2px; }
+  @media (min-width: 640px) { .num { font-size: 42px; } .inside { font-size: 40px; } }
+  .locked .front { opacity: .72; }
+  .today .front { box-shadow: 0 0 0 3px #f5c542, 0 0 20px #f5c542; -webkit-animation: pulse 1.6s ease-in-out infinite; animation: pulse 1.6s ease-in-out infinite; }
+  .opened .front { -webkit-transform: rotateY(-105deg); transform: rotateY(-105deg); }
+  .shake { -webkit-animation: shake .45s; animation: shake .45s; }
+  @-webkit-keyframes pulse { 50% { -webkit-transform: scale(1.05); } }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  @-webkit-keyframes shake { 25%,75% { -webkit-transform: translateX(-5px); } 50% { -webkit-transform: translateX(5px); } }
+  @keyframes shake { 25%,75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+
+  .overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: none;
+    background: rgba(5,12,28,.75); padding: 18px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .overlay.show { display: block; }
+  .card {
+    position: relative; background: #fff8ec; color: #2b1a12; max-width: 460px; margin: 8vh auto 0;
+    border-radius: 24px; padding: 30px 24px 24px; text-align: center;
+    border: 6px solid #c8323c; box-shadow: 0 0 0 4px #f5c542, 0 24px 60px rgba(0,0,0,.5);
+  }
+  .day { font-family: 'Mountains of Christmas', Georgia, serif; color: #c8323c; font-size: 30px; margin: 0; }
+  .emoji { font-size: 64px; line-height: 1.1; margin: 6px 0; }
+  .q { font-size: 23px; margin: 6px 0 18px; line-height: 1.3; }
+  .a { font-size: 24px; color: #13573a; min-height: 30px; margin: 0 0 16px; visibility: hidden; opacity: 0; -webkit-transition: opacity .4s; transition: opacity .4s; }
+  .a.show { visibility: visible; opacity: 1; }
+  .btn {
+    font-family: inherit; font-size: 20px; border: 0; cursor: pointer; -webkit-appearance: none;
+    padding: 12px 26px; border-radius: 30px; background: #c8323c; color: #fff; box-shadow: 0 4px 0 #8f1d25;
+  }
+  .btn.alt { background: #1f7a4d; box-shadow: 0 4px 0 #13573a; }
+  .close { position: absolute; top: 8px; right: 12px; background: none; border: 0; font-size: 32px; cursor: pointer; color: #8a6d5d; line-height: 1; -webkit-appearance: none; }
+
+  .toast {
+    position: fixed; left: 10px; right: 10px; bottom: 24px; z-index: 20; text-align: center;
+    pointer-events: none; opacity: 0; -webkit-transition: opacity .3s; transition: opacity .3s;
+  }
+  .toast span { display: inline-block; background: #f5c542; color: #3a2306; padding: 12px 22px; border-radius: 30px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .toast.show { opacity: 1; }
+  .bit { position: fixed; z-index: 15; pointer-events: none; font-size: 26px; -webkit-transition: all 1s ease-out; transition: all 1s ease-out; }
+  footer { text-align: center; margin-top: 20px; font-size: 14px; opacity: .65; }
+</style>
+</head>
+<body>
+<canvas id="snow"></canvas>
+<div class="wrap">
+  <header>
+    <h1>Christmas Joke<br>Advent Calendar</h1>
+    <p class="sub">A new silly joke behind a door every day in December! 🎄</p>
+    <div class="status" id="status"></div>
+  </header>
+  <div class="board" id="board"></div>
+  <footer>Open one door each day. No peeking! 🎅</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="card">
+    <button class="close" id="closeBtn" aria-label="Close">&times;</button>
+    <p class="day" id="cDay"></p>
+    <div class="emoji" id="cEmoji"></div>
+    <p class="q" id="cQ"></p>
+    <p class="a" id="cA"></p>
+    <button class="btn" id="revealBtn">Tell me! 🤔</button>
+  </div>
+</div>
+<div class="toast" id="toast"><span id="toastText"></span></div>
+
+<script>
+/* Plain old JavaScript (ES5) so it runs on older iPads. */
+(function () {
+  // Edit the jokes here: [picture, question, punchline]
+  var JOKES = [
+    ["⛄", "What do snowmen eat for breakfast?", "Snowflakes!"],
+    ["🎵", "What do you call an elf who sings?", "A wrapper!"],
+    ["🎅", "Why is Santa so good at karate?", "Because he has a black belt!"],
+    ["⭐", "What do reindeer hang on their Christmas trees?", "Horn-aments!"],
+    ["💬", "What did one snowman say to the other snowman?", "“Do you smell carrots?”"],
+    ["🐑", "How does a sheep say Merry Christmas?", "Fleece Navidad!"],
+    ["🍪", "Why did the gingerbread man go to the doctor?", "Because he was feeling crummy!"],
+    ["😬", "What do you get if you cross a snowman with a vampire?", "Frostbite!"],
+    ["🌱", "What does Santa do in his garden?", "He hoe-hoe-hoes!"],
+    ["🎄", "Why are Christmas trees so bad at knitting?", "They keep dropping their needles!"],
+    ["🍹", "What is a snowman’s favourite drink?", "Iced tea!"],
+    ["🐳", "Who brings presents to baby sharks?", "Santa Jaws!"],
+    ["🐱", "What do you call a cat on the beach at Christmas?", "Sandy Claws!"],
+    ["👀", "What do you call a reindeer with no eyes?", "No eye-deer!"],
+    ["❄️", "What falls at the North Pole but never gets hurt?", "Snow!"],
+    ["💰", "Where do snowmen keep their money?", "In a snow bank!"],
+    ["🔔", "What did the Christmas tree say to the ornament?", "“Quit hanging around!”"],
+    ["🏠", "Why does Santa go down the chimney?", "Because it soots him!"],
+    ["☔", "What did Mrs. Claus say when she looked up at the sky?", "“Looks like rain, dear!”"],
+    ["👶", "What do snowmen call their kids?", "Chill-dren!"],
+    ["📚", "What do elves learn in school?", "The elf-abet!"],
+    ["🙈", "Why was the snowman looking through the bag of carrots?", "He was picking his nose!"],
+    ["💨", "What do you get when you cross a bell with a skunk?", "Jingle smells!"],
+    ["🎁", "What’s the best Christmas present ever?", "A broken drum — you just can’t beat it!"]
+  ];
+  // Scrambled door order, like a real advent calendar
+  var ORDER = [7,18,2,23,11,15,4,20,13,1,9,22,16,6,24,3,12,19,10,5,21,14,8,17];
+  var KEY = "advent-jokes-opened";
+
+  var preview = window.location.hash === "#preview";
+  var now = new Date();
+  var isDec = now.getMonth() === 11;
+  var today = isDec ? now.getDate() : 0;
+  function canOpen(d) { return preview || (isDec && d <= today); }
+
+  var opened = {};
+  try { opened = JSON.parse(window.localStorage.getItem(KEY) || "{}") || {}; } catch (e) {}
+  function save() { try { window.localStorage.setItem(KEY, JSON.stringify(opened)); } catch (e) {} }
+
+  function $(id) { return document.getElementById(id); }
+  function addClass(el, c) { if ((" " + el.className + " ").indexOf(" " + c + " ") < 0) el.className += " " + c; }
+  function removeClass(el, c) { el.className = (" " + el.className + " ").replace(" " + c + " ", " ").replace(/^\s+|\s+$/g, ""); }
+  function hasClass(el, c) { return (" " + el.className + " ").indexOf(" " + c + " ") >= 0; }
+
+  // Status line
+  var status = $("status");
+  if (preview) {
+    status.innerHTML = "👀 Grown-up preview: every door is unlocked";
+  } else if (isDec && today <= 24) {
+    status.innerHTML = "🎁 Today is December " + today + " — open door " + today + "!";
+  } else if (isDec) {
+    status.innerHTML = "🎉 Merry Christmas! Every door is open — read them all again!";
+  } else {
+    var start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var dec1 = new Date(now.getFullYear(), 11, 1);
+    var sleeps = Math.round((dec1 - start) / 86400000);
+    status.innerHTML = "⏳ " + sleeps + " sleep" + (sleeps === 1 ? "" : "s") + " until the first door opens!";
+  }
+
+  // Build the doors
+  var board = $("board");
+  for (var i = 0; i < ORDER.length; i++) {
+    (function (d, i) {
+      var cell = document.createElement("div");
+      cell.className = "cell";
+      var b = document.createElement("button");
+      b.className = "door c" + (i % 3);
+      b.setAttribute("aria-label", "Door " + d);
+      b.innerHTML = '<span class="inside">' + JOKES[d - 1][0] + '</span>' +
+        '<span class="front"><span class="num">' + d + '</span><span class="tag">' +
+        (canOpen(d) ? "OPEN ME" : "🔒") + '</span></span>';
+      if (!canOpen(d)) addClass(b, "locked");
+      else if (opened[d]) addClass(b, "opened");
+      if (!preview && isDec && d === today && !opened[d]) addClass(b, "today");
+      b.onclick = function () { clickDoor(b, d); };
+      cell.appendChild(b);
+      board.appendChild(cell);
+    })(ORDER[i], i);
+  }
+
+  var NOPE = ["Patience, little elf!", "No peeking!", "Santa is watching! 🎅", "Not yet, you cheeky reindeer!"];
+  function clickDoor(el, d) {
+    if (!canOpen(d)) {
+      removeClass(el, "shake");
+      void el.offsetWidth;
+      addClass(el, "shake");
+      toast(NOPE[d % NOPE.length] + " Door " + d + " opens on December " + d + ".");
+      return;
+    }
+    var wasOpen = hasClass(el, "opened");
+    addClass(el, "opened");
+    removeClass(el, "today");
+    opened[d] = true;
+    save();
+    setTimeout(function () { showJoke(d); }, wasOpen ? 0 : 600);
+  }
+
+  var overlay = $("overlay"), cA = $("cA"), revealBtn = $("revealBtn");
+  function showJoke(d) {
+    var j = JOKES[d - 1];
+    $("cDay").innerHTML = "December " + d;
+    $("cEmoji").innerHTML = j[0];
+    $("cQ").innerHTML = j[1];
+    cA.innerHTML = j[2];
+    removeClass(cA, "show");
+    revealBtn.innerHTML = "Tell me! 🤔";
+    revealBtn.className = "btn";
+    addClass(overlay, "show");
+  }
+  function closeCard() { removeClass(overlay, "show"); }
+  revealBtn.onclick = function () {
+    if (!hasClass(cA, "show")) {
+      addClass(cA, "show");
+      revealBtn.innerHTML = "Ha ha ha! Close 🎄";
+      revealBtn.className = "btn alt";
+      burst(revealBtn);
+    } else {
+      closeCard();
+    }
+  };
+  $("closeBtn").onclick = closeCard;
+  overlay.onclick = function (e) { if (e.target === overlay) closeCard(); };
+  document.onkeydown = function (e) { if (e.keyCode === 27) closeCard(); };
+
+  function burst(el) {
+    var r = el.getBoundingClientRect();
+    var bits = ["⭐", "❄️", "🎁", "✨", "🎄", "🔔", "😂"];
+    for (var k = 0; k < 16; k++) {
+      (function (k) {
+        var s = document.createElement("span");
+        s.className = "bit";
+        s.innerHTML = bits[k % bits.length];
+        s.style.left = (r.left + r.width / 2) + "px";
+        s.style.top = r.top + "px";
+        document.body.appendChild(s);
+        var ang = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 120;
+        var t = "translate(" + Math.round(Math.cos(ang) * dist) + "px," + Math.round(Math.sin(ang) * dist - 60) + "px) rotate(" + Math.round(Math.random() * 360 - 180) + "deg)";
+        setTimeout(function () {
+          s.style.webkitTransform = t; s.style.transform = t; s.style.opacity = "0";
+        }, 20);
+        setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1200);
+      })(k);
+    }
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    $("toastText").innerHTML = msg;
+    addClass($("toast"), "show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { removeClass($("toast"), "show"); }, 2600);
+  }
+
+  // Falling snow
+  var cv = $("snow"), ctx = cv.getContext && cv.getContext("2d");
+  if (!ctx) return;
+  var flakes = [];
+  function size() {
+    cv.width = window.innerWidth; cv.height = window.innerHeight;
+    var n = Math.min(120, Math.floor(window.innerWidth / 8));
+    flakes = [];
+    for (var f = 0; f < n; f++) {
+      flakes.push({ x: Math.random() * cv.width, y: Math.random() * cv.height,
+        r: 1 + Math.random() * 3, s: 0.3 + Math.random() * 1.1, w: Math.random() * 6.28 });
+    }
+  }
+  size();
+  window.addEventListener("resize", size, false);
+  var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
+    function (cb) { return setTimeout(cb, 33); };
+  function tick() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    for (var f = 0; f < flakes.length; f++) {
+      var p = flakes[f];
+      p.y += p.s; p.w += 0.01; p.x += Math.sin(p.w) * 0.4;
+      if (p.y > cv.height + 5) { p.y = -5; p.x = Math.random() * cv.width; }
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+    }
+    raf(tick);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

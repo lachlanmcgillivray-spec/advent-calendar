@@ -15,11 +15,19 @@
     font-family: 'Fredoka One', 'Trebuchet MS', Arial, sans-serif;
     color: #fff8ec;
     background-color: #0f1f3d;
-    background-image: -webkit-radial-gradient(top, ellipse, #1b3563, #0f1f3d 70%);
-    background-image: radial-gradient(ellipse at top, #1b3563, #0f1f3d 70%);
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
+  }
+  #bg {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+    background: #0f1f3d url(img/background.jpg) center center no-repeat;
+    -webkit-background-size: cover; background-size: cover;
+  }
+  #bg:after {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: -webkit-linear-gradient(top, rgba(8,16,40,.55), rgba(8,16,40,.15) 45%, rgba(8,16,40,.45));
+    background: linear-gradient(to bottom, rgba(8,16,40,.55), rgba(8,16,40,.15) 45%, rgba(8,16,40,.45));
   }
   #snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   .wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 24px 14px 50px; }
@@ -30,16 +38,14 @@
     text-shadow: 0 3px 0 #8f1d25, 0 6px 16px rgba(0,0,0,.4);
   }
   @media (min-width: 600px) { h1 { font-size: 64px; } }
-  .sub { font-size: 18px; margin: 10px 0 0; }
+  .sub { font-size: 18px; margin: 10px 0 0; text-shadow: 0 2px 6px rgba(0,0,0,.8); }
   .status {
     display: inline-block; margin-top: 14px; padding: 8px 18px; border-radius: 30px;
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    background: rgba(10,20,45,.7); border: 1px solid rgba(255,255,255,.3);
   }
 
   .board {
-    background: #1f7a4d;
-    background-image: -webkit-linear-gradient(top left, #1f7a4d, #13573a);
-    background-image: linear-gradient(160deg, #1f7a4d, #13573a);
+    background: rgba(19,87,58,.6);
     padding: 8px; border-radius: 22px; border: 6px solid #c8323c;
     box-shadow: 0 0 0 4px #f5c542, 0 18px 40px rgba(0,0,0,.45);
   }
@@ -67,13 +73,26 @@
     -webkit-transition: -webkit-transform .7s ease; transition: transform .7s ease;
     -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
-  .c0 .front { background: #b52f38; }
-  .c1 .front { background: #23774c; }
-  .c2 .front { background: #264f8f; }
+  .c0 .front { background: #fbe7c6; background-image: -webkit-radial-gradient(center, circle, #fff8ec, #f2d39c); background-image: radial-gradient(circle, #fff8ec, #f2d39c); }
+  .c1 .front { background: #cfe8f7; background-image: -webkit-radial-gradient(center, circle, #f2fbff, #9fcbe8); background-image: radial-gradient(circle, #f2fbff, #9fcbe8); }
+  .c2 .front { background: #d9efd9; background-image: -webkit-radial-gradient(center, circle, #f4fff2, #a9d7a6); background-image: radial-gradient(circle, #f4fff2, #a9d7a6); }
+  .front { border: 3px solid #c8323c; }
+  .pic {
+    position: absolute; left: 6%; right: 4%; top: 10%; bottom: 3%;
+    background-repeat: no-repeat; background-position: center bottom;
+    -webkit-background-size: contain; background-size: contain;
+  }
+  .front .num {
+    position: absolute; top: 4px; left: 4px; z-index: 2; font-size: 22px;
+    min-width: 32px; height: 32px; line-height: 30px; padding: 0 5px; text-align: center;
+    color: #fff8ec; background: #c8323c; border: 2px solid #f5c542; border-radius: 16px;
+    text-shadow: none; box-shadow: 0 2px 4px rgba(0,0,0,.35);
+  }
+  .front .tag { position: absolute; bottom: 3px; right: 6px; z-index: 2; font-size: 14px; }
   .num { font-family: 'Mountains of Christmas', Georgia, serif; font-size: 36px; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.3); }
   .tag { font-size: 11px; letter-spacing: 1px; margin-top: 2px; }
-  @media (min-width: 640px) { .num { font-size: 42px; } .inside { font-size: 40px; } }
-  .locked .front { opacity: .72; }
+  @media (min-width: 640px) { .front .num { font-size: 26px; min-width: 38px; height: 38px; line-height: 36px; border-radius: 19px; } .inside { font-size: 40px; } }
+  .locked .pic { opacity: .55; }
   .today .front { box-shadow: 0 0 0 3px #f5c542, 0 0 20px #f5c542; -webkit-animation: pulse 1.6s ease-in-out infinite; animation: pulse 1.6s ease-in-out infinite; }
   .opened .front { -webkit-transform: rotateY(-105deg); transform: rotateY(-105deg); }
   .shake { -webkit-animation: shake .45s; animation: shake .45s; }
@@ -93,7 +112,8 @@
     border: 6px solid #c8323c; box-shadow: 0 0 0 4px #f5c542, 0 24px 60px rgba(0,0,0,.5);
   }
   .day { font-family: 'Mountains of Christmas', Georgia, serif; color: #c8323c; font-size: 30px; margin: 0; }
-  .emoji { font-size: 64px; line-height: 1.1; margin: 6px 0; }
+  .emoji { font-size: 40px; line-height: 1.1; margin: 0; }
+  .cardPic { height: 170px; margin: 6px auto 4px; background-repeat: no-repeat; background-position: center; -webkit-background-size: contain; background-size: contain; }
   .q { font-size: 23px; margin: 6px 0 18px; line-height: 1.3; }
   .a { font-size: 24px; color: #13573a; min-height: 30px; margin: 0 0 16px; visibility: hidden; opacity: 0; -webkit-transition: opacity .4s; transition: opacity .4s; }
   .a.show { visibility: visible; opacity: 1; }
@@ -111,10 +131,11 @@
   .toast span { display: inline-block; background: #f5c542; color: #3a2306; padding: 12px 22px; border-radius: 30px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
   .toast.show { opacity: 1; }
   .bit { position: fixed; z-index: 15; pointer-events: none; font-size: 26px; -webkit-transition: all 1s ease-out; transition: all 1s ease-out; }
-  footer { text-align: center; margin-top: 20px; font-size: 14px; opacity: .65; }
+  footer { text-align: center; margin-top: 20px; font-size: 15px; text-shadow: 0 1px 4px #000, 0 0 10px #000; }
 </style>
 </head>
 <body>
+<div id="bg"></div>
 <canvas id="snow"></canvas>
 <div class="wrap">
   <header>
@@ -130,6 +151,7 @@
   <div class="card">
     <button class="close" id="closeBtn" aria-label="Close">&times;</button>
     <p class="day" id="cDay"></p>
+    <div class="cardPic" id="cPic"></div>
     <div class="emoji" id="cEmoji"></div>
     <p class="q" id="cQ"></p>
     <p class="a" id="cA"></p>
@@ -168,6 +190,11 @@
     ["💨", "What do you get when you cross a bell with a skunk?", "Jingle smells!"],
     ["🎁", "What’s the best Christmas present ever?", "A broken drum — you just can’t beat it!"]
   ];
+  // Which Santi Claws picture covers each door, December 1 to 24 (files in the img folder).
+  // Add new pictures to img/ and change the numbers here.
+  var SANTI = [1,2,3,4,5,6,7,8,9,10, 1,2,3,4,5,6,7,8,9,10, 1,2,3,4];
+  function santiUrl(d) { var n = SANTI[d - 1]; return "img/santi-" + (n < 10 ? "0" : "") + n + ".png"; }
+
   // Scrambled door order, like a real advent calendar
   var ORDER = [7,18,2,23,11,15,4,20,13,1,9,22,16,6,24,3,12,19,10,5,21,14,8,17];
   var KEY = "advent-jokes-opened";
@@ -214,8 +241,8 @@
       b.className = "door c" + (i % 3);
       b.setAttribute("aria-label", "Door " + d);
       b.innerHTML = '<span class="inside">' + JOKES[d - 1][0] + '</span>' +
-        '<span class="front"><span class="num">' + d + '</span><span class="tag">' +
-        (canOpen(d) ? "OPEN ME" : "🔒") + '</span></span>';
+        '<span class="front"><span class="pic" style="background-image:url(' + santiUrl(d) + ')"></span>' +
+        '<span class="num">' + d + '</span><span class="tag">' + (canOpen(d) ? "" : "🔒") + '</span></span>';
       if (!canOpen(d)) addClass(b, "locked");
       else if (opened[d]) addClass(b, "opened");
       if (!preview && isDec && d === today && !opened[d]) addClass(b, "today");
@@ -247,6 +274,7 @@
     var j = JOKES[d - 1];
     $("cDay").innerHTML = "December " + d;
     $("cEmoji").innerHTML = j[0];
+    $("cPic").style.backgroundImage = "url(" + santiUrl(d) + ")";
     $("cQ").innerHTML = j[1];
     cA.innerHTML = j[2];
     removeClass(cA, "show");

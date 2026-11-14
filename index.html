@@ -142,6 +142,9 @@
     <h1>Christmas Joke<br>Advent Calendar</h1>
     <p class="sub">A new silly joke behind a door every day in December! 🎄</p>
     <div class="status" id="status"></div>
+    <div id="resetWrap" style="display:none;margin-top:12px">
+      <button class="btn" id="resetBtn" style="font-size:16px;padding:9px 20px">🔄 Close all doors &amp; leave preview</button>
+    </div>
   </header>
   <div class="board" id="board"></div>
   <footer>Open one door each day. No peeking! 🎅</footer>
@@ -166,15 +169,15 @@
   // Edit the jokes here: [picture, question, punchline]
   var JOKES = [
     ["💡", "What do you call a lobster covered in Christmas lights?", "A lob-STAR!"],
-    ["🎅", "Why does Santa\u2019s sleigh never run out of gas?", "It has long-distance runners!"],
+    ["🔔", "What do reindeer say before they tell a joke?", "\u201cThis one\u2019s gonna sleigh you!\u201d"],
     ["🎁", "What did the wrapping paper say to the present?", "\u201cDon\u2019t worry, I\u2019ve got you covered!\u201d"],
     ["🎉", "What happened when the Christmas cracker told a joke?", "Everyone cracked up!"],
-    ["🎤", "Why did Santi sing into a whisk?", "He wanted to whip up a hit song!"],
-    ["🏠", "Why did the gingerbread man go to the doctor?", "Because he was feeling crummy!"],
-    ["📜", "Who is at the very top of Santi\u2019s list?", "YOU \u2014 because you\u2019re claws-ome!"],
-    ["🍳", "What does Santi flip on Christmas morning?", "Pan-CLAWS!"],
-    ["🍲", "What kind of soup do snowmen like best?", "Brrr-occoli soup!"],
-    ["😴", "Why did Santi fall asleep mixing the cookie batter?", "Because he was totally beat!"],
+    ["🏒", "Why is Santi the best goalie at the North Pole?", "Nothing gets past his claws!"],
+    ["⛄", "What did one snowball say to the other snowball?", "\u201cLet\u2019s stick together!\u201d"],
+    ["🚲", "What do snowmen like to ride?", "Ice-cycles!"],
+    ["⭐", "What did the star on top of the Christmas tree say?", "\u201cI\u2019m feeling a little light-headed!\u201d"],
+    ["🎄", "What did the stocking say on Christmas morning?", "\u201cPhew, I\u2019m stuffed!\u201d"],
+    ["🏨", "Where does Santa sleep when he travels?", "At a ho-ho-hotel!"],
     ["🍹", "What is a snowman’s favourite drink?", "Iced tea!"],
     ["🐳", "Who brings presents to baby sharks?", "Santa Jaws!"],
     ["🏖", "What do you call Santi on a beach holiday?", "Sandy Claws!"],
@@ -231,6 +234,17 @@
     status.innerHTML = "⏳ " + sleeps + " sleep" + (sleeps === 1 ? "" : "s") + " until the first door opens!";
   }
 
+  // Grown-up reset: forget every opened door on this device, then go back to the normal calendar
+  if (preview) {
+    $("resetWrap").style.display = "block";
+    $("resetBtn").onclick = function () {
+      opened = {};
+      try { window.localStorage.removeItem(KEY); } catch (e) {}
+      window.location.hash = "";
+      window.location.reload();
+    };
+  }
+
   // Build the doors
   var board = $("board");
   for (var i = 0; i < ORDER.length; i++) {
@@ -264,8 +278,7 @@
     var wasOpen = hasClass(el, "opened");
     addClass(el, "opened");
     removeClass(el, "today");
-    opened[d] = true;
-    save();
+    if (!preview) { opened[d] = true; save(); }  // preview peeks aren't remembered
     setTimeout(function () { showJoke(d); }, wasOpen ? 0 : 600);
   }
 
